@@ -1,0 +1,217 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "userId": 1,
+      "name": "John",
+      "account": {
+        "email": "u1@gmail.com",
+        "password": "abc@123",
+        "activeCode": "ABCDEFXX",
+        "isActive": false
+      },
+      "address": {
+        "street": "190 Nguyễn Tuân, Thanh Xuân",
+        "city": "Hà Nội",
+        "zipcode": 1000
+      }
+    },
+    {
+      "id": 2,
+      "userId": 2,
+      "name": "Marry",
+      "account": {
+        "email": "u2@gmail.com",
+        "password": "abc@123",
+        "activeCode": "",
+        "isActive": true
+      },
+      "address": {
+        "street": "190 Đường Láng, Cầu Giấy",
+        "city": "Hà Nội",
+        "zipcode": 1000
+      }
+    },
+    {
+      "id": 3,
+      "userId": 3,
+      "name": "chien",
+      "account": {
+        "email": "khogvanchien@gmail.com",
+        "password": "a",
+        "activeCode": "",
+        "isActive": true
+      },
+      "address": {
+        "street": "ha noi 1",
+        "city": "ha noi",
+        "zipcode": 1
+      }
+    }
+  ],
+  "albums": [
+    {
+      "id": 1,
+      "albumId": 1,
+      "description": "Summer Album",
+      "userId": 1
+    },
+    {
+      "id": 2,
+      "albumId": 2,
+      "description": "Spring Album",
+      "userId": 2
+    }
+  ],
+  "photos": [
+    {
+      "id": 1,
+      "photoId": 1,
+      "title": "Photo 1",
+      "albumId": 1,
+      "tags": [
+        "hot",
+        "summer",
+        "new"
+      ],
+      "image": {
+        "url": [
+          "p1.jpg",
+          "p1_1.jpg",
+          "p1_2.jpg",
+          "p1_3.jpg"
+        ],
+        "thumbnailUrl": "p11.jpg"
+      }
+    },
+    {
+      "id": 2,
+      "photoId": 2,
+      "title": "Photo 2",
+      "albumId": 1,
+      "tags": [
+        "hot",
+        "summer",
+        "new"
+      ],
+      "image": {
+        "url": [
+          "p2.jpg",
+          "p2_1.jpg",
+          "p2_2.jpg",
+          "p2_3.jpg"
+        ],
+        "thumbnailUrl": "p21.jpg"
+      }
+    },
+    {
+      "id": 3,
+      "photoId": 3,
+      "title": "Photo 3",
+      "albumId": 2,
+      "tags": [
+        "hot"
+      ],
+      "image": {
+        "url": [
+          "p3.jpg",
+          "p3_1.jpg",
+          "p3_2.jpg",
+          "p3_3.jpg"
+        ],
+        "thumbnailUrl": "p31.jpg"
+      }
+    },
+    {
+      "id": 4,
+      "photoId": 4,
+      "title": "Photo 4",
+      "tags": [
+        "hot",
+        "new"
+      ],
+      "albumId": 2,
+      "image": {
+        "url": [
+          "p4.jpg",
+          "p4_1.jpg",
+          "p4_2.jpg",
+          "p4_3.jpg"
+        ],
+        "thumbnailUrl": "p41.jpg"
+      }
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "photoId": 1,
+      "userId": 1,
+      "text": "Rất đẹp",
+      "rate": 5
+    },
+    {
+      "id": 2,
+      "photoId": 2,
+      "userId": 1,
+      "text": "Bình thường",
+      "rate": 2
+    },
+    {
+      "id": 3,
+      "photoId": 3,
+      "userId": 1,
+      "text": "",
+      "rate": 5
+    },
+    {
+      "id": 4,
+      "photoId": 3,
+      "userId": 2,
+      "text": "đẹp",
+      "rate": 4
+    },
+    {
+      "id": 5,
+      "photoId": 4,
+      "userId": 2,
+      "text": "đẹp",
+      "rate": 3
+    },
+    {
+      "id": 6,
+      "photoId": 4,
+      "userId": 1,
+      "text": "Rất đẹp",
+      "rate": 4
+    },
+    {
+      "id": 7,
+      "photoId": 2,
+      "userId": 2,
+      "text": "Trung bình",
+      "rate": 3
+    },
+    {
+      "id": 8,
+      "photoId": 1,
+      "userId": 2,
+      "text": "Rất đẹp",
+      "rate": 5
+    },
+    {
+      "photoId": 3,
+      "userId": 2,
+      "text": "ac",
+      "rate": 5,
+      "id": 9
+    },
+    {
+      "photoId": 3,
+      "userId": 2,
+      "text": "k",
+      "rate": 5,
+      "id": 10
+    }
+  ]
+}
