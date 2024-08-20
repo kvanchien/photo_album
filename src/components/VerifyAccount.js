@@ -1,44 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button, Container, Alert } from 'react-bootstrap';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { Form, Button, Container, Alert } from "react-bootstrap";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import emailjs from "emailjs-com";
 
 const VerifyAccount = () => {
-  const [verificationCode, setVerificationCode] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [verificationCode, setVerificationCode] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [resendMessage, setResendMessage] = useState(""); // For showing resend messages
   const location = useLocation();
   const navigate = useNavigate();
-  const email = location.state?.email || '';
-  const generatedCode = location.state?.verificationCode || '';
+  const email = location.state?.email || "";
+  const generatedCode = location.state?.verificationCode || "";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     if (!email || !generatedCode) {
-      setError('Invalid session. Please try registering again.');
+      setError("Invalid session. Please try registering again.");
       return;
     }
 
     if (verificationCode !== generatedCode) {
-      setError('Invalid verification code. Please try again.');
+      setError("Invalid verification code. Please try again.");
       return;
     }
 
     try {
-      const response = await axios.get('http://localhost:9999/users');
+      const response = await axios.get("http://localhost:9999/users");
       const users = response.data;
-      const user = users.find(u => u.account && u.account.email === email);
+      const user = users.find((u) => u.account && u.account.email === email);
 
       if (!user) {
-        setError('User not found. Please try registering again.');
+        setError("User not found. Please try registering again.");
         return;
       }
 
       if (user.account.isActive) {
-        setError('This account is already active. Please login.');
+        setError("This account is already active. Please login.");
         return;
       }
 
@@ -47,31 +49,66 @@ const VerifyAccount = () => {
         account: {
           ...user.account,
           isActive: true,
-          activeCode: '',
+          activeCode: "",
         },
       });
 
-      setSuccess('Account verified successfully. You will go to login page after 3 seconds.');
-      setTimeout(() => navigate('/login'), 3000);
+      setSuccess(
+        "Account verified successfully. You will go to login page after 3 seconds."
+      );
+      setTimeout(() => navigate("/login"), 3000);
     } catch (error) {
-      console.error('Verification error:', error);
-      setError('An error occurred. Please try again.');
+      console.error("Verification error:", error);
+      setError("An error occurred. Please try again.");
     }
   };
+
+  const handleResendCode = async () => {
+    try {
+      setResendMessage("Resending verification code...");
+      const response = await axios.get("http://localhost:9999/users");
+      const users = response.data;
+      const user = users.find((u) => u.account && u.account.email === email);
+
+      if (!user) {
+        setError("User not found. Please try registering again.");
+        return;
+      }
+
+      const baseLocation = window.location.origin;
+      const verifyMessage = `Your verification code is ${generatedCode}\n
+      Or click the following link to verify your account: ${baseLocation}/verification/${user.userId}/${generatedCode}`;
+
+      await emailjs.send(
+        "service_zh7f8li",
+        "template_as8273v",
+        {
+          to_email: email,
+          code: verifyMessage,
+        },
+        "kJErhpnaspsVp_TNQ"
+      );
+
+      setResendMessage(
+        "Verification code resent successfully. Please check your email."
+      );
+    } catch (error) {
+      console.error("Error resending verification code:", error);
+      setError("An error occurred while resending the code. Please try again.");
+    }
+  };
+
   return (
     <Container className="mt-5">
       <h2>Verify Your Account</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       {success && <Alert variant="success">{success}</Alert>}
+      {resendMessage && <Alert variant="info">{resendMessage}</Alert>}
       {email ? (
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
             <Form.Label>Email address</Form.Label>
-            <Form.Control
-              type="email"
-              value={email}
-              disabled
-            />
+            <Form.Control type="email" value={email} disabled />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Verification Code</Form.Label>
@@ -88,6 +125,9 @@ const VerifyAccount = () => {
           <Button variant="primary" type="submit">
             Verify Account
           </Button>
+          <Button variant="link" onClick={handleResendCode} className="mt-3">
+            Resend Verification Code
+          </Button>
         </Form>
       ) : (
         <p>
@@ -99,21 +139,6 @@ const VerifyAccount = () => {
       </p>
     </Container>
   );
-};
-
-// Fictional sendEmail function
-const sendEmail = (email, code) => {
-  const message = `
-    Hello new member,
-
-    You registered succesful. Here is a new message includes active code:
-
-    ${code}
-
-    Best wishes,
-    EmailJS team
-  `;
-  console.log(`Sending email to ${email}: ${message}`);
 };
 
 export default VerifyAccount;

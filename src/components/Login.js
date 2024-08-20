@@ -10,12 +10,14 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [inactiveUser, setInactiveUser] = useState(null); // State to handle inactive user
   const navigate = useNavigate();
   const { setUser } = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setInactiveUser(null); // Reset inactive user
 
     try {
       const response = await axios.get("http://localhost:9999/users");
@@ -32,9 +34,7 @@ const Login = () => {
           setUser(user);
           navigate("/");
         } else {
-          setError(
-            "Account is not active. Please check your email for activation instructions."
-          );
+          setInactiveUser(user); // Set the inactive user to render the verification link
         }
       } else {
         setError("Invalid email or password");
@@ -52,10 +52,23 @@ const Login = () => {
       </Row>
       <h2 className="text-center mt-3">Login</h2>
       {error && <Alert variant="danger">{error}</Alert>}
+      {inactiveUser && (
+        <Alert variant="danger">
+          You need to verify your account before proceeding.{" "}
+          <Link
+            to="/verify-account"
+            state={{
+              email: inactiveUser.account.email,
+              verificationCode: inactiveUser.account.activeCode,
+            }}
+          >
+            Verify your account
+          </Link>
+        </Alert>
+      )}
       <Row>
         <Col></Col>
         <Col>
-          {" "}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3">
               <Form.Label>Email address</Form.Label>
@@ -87,14 +100,14 @@ const Login = () => {
             Don't have an account? <Link to="/register">Register here</Link>
           </p>
           <p className="mt-2">
-            ForgotPassword <Link to="/forgot-password">Reset password</Link>
+            Forgot Password? <Link to="/forgot-password">Reset password</Link>
           </p>
           <Link to="/">Back to Home</Link>
         </Col>
         <Col></Col>
       </Row>
       <Row>
-        <Footer/>
+        <Footer />
       </Row>
     </Container>
   );
