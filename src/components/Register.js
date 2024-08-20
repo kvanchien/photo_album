@@ -70,13 +70,13 @@ const Register = () => {
   const sendVerificationEmail = async (email, code) => {
     try {
       await emailjs.send(
-        "service_zh7f8li",
-        "template_as8273v",
+        "service_zh7f8li", //Service ID
+        "template_as8273v", //Template ID
         {
           to_email: email,
           code: code,
         },
-        "kJErhpnaspsVp_TNQ"
+        "kJErhpnaspsVp_TNQ" //Public key
       );
       console.log("Verification email sent successfully");
     } catch (error) {

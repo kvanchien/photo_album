@@ -85,6 +85,9 @@ const Login = () => {
           <p className="mt-3">
             Don't have an account? <Link to="/register">Register here</Link>
           </p>
+          <p className="mt-2">
+            ForgotPassword <Link to="/forgot-password">Reset password</Link>
+          </p>
           <Link to="/">Back to Home</Link>
         </Col>
         <Col></Col>

@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import UpdateProfile from "./components/UpdateProfile";
 import VerifyAccount from "./components/VerifyAccount";
 import Manage from "./components/Manage";
+import ForgotPassword from "./components/ForgotPassword";
 
 const App = () => {
   const [albums, setAlbums] = useState([]);
@@ -51,6 +52,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/verify-account" element={<VerifyAccount />} />
           <Route path="/profile" element={<UpdateProfile />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/manage" element={<Manage />} />
         </Routes>
       </BrowserRouter>
