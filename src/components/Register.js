@@ -3,6 +3,7 @@ import { Form, Button, Container, Alert, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import NavbarComponent from "./Navbar";
+import Footer from "./Footer";
 import emailjs from "emailjs-com";
 
 const Register = () => {
@@ -150,6 +151,9 @@ const Register = () => {
           <Link to="/">Back to Home</Link>
         </Col>
         <Col></Col>
+      </Row>
+      <Row>
+        <Footer/>
       </Row>
     </Container>
   );

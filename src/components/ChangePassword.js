@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../UserContext";
 import NavbarComponent from "./Navbar";
 import axios from "axios";
+import Footer from "./Footer";
 
 const ChangePassword = () => {
   const [oldPassword, setOldPassword] = useState("");
@@ -99,6 +100,9 @@ const ChangePassword = () => {
           <Link to="/">Back to Home</Link>
         </Col>
         <Col></Col>
+      </Row>
+      <Row>
+        <Footer/>
       </Row>
     </Container>
   );
