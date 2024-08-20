@@ -51,17 +51,17 @@
     {
       "id": 4,
       "userId": 4,
-      "name": "ac",
+      "name": "test",
       "account": {
         "email": "chienkvhe163507@fpt.edu.vn",
-        "password": "WNQlug",
+        "password": "123",
         "activeCode": "",
         "isActive": true
       },
       "address": {
         "street": "",
         "city": "",
-        "zipcode": ""
+        "zipcode": null
       }
     }
   ],

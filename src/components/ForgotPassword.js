@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Form, Button, Container, Alert, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import Footer from "./Footer";
 import NavbarComponent from "./Navbar";
 import axios from "axios";
 import emailjs from "emailjs-com";
@@ -101,6 +102,9 @@ const ForgotPassword = () => {
           <Link to="/">Back to Home</Link>
         </Col>
         <Col></Col>
+      </Row>
+      <Row>
+        <Footer/>
       </Row>
     </Container>
   );

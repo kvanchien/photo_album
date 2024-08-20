@@ -55,9 +55,8 @@ function PhotoDetail() {
                 <Card.Img
                   variant="top"
                   style={{
-                    width: "15rem",
-                    height: "20rem",
-                    objectFit: "cover",
+                    width: "30rem",
+                    height: "20rem"
                   }}
                   src={`/images/${selectedImage}`} // Use selectedImage state
                 />

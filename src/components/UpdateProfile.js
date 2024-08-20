@@ -8,11 +8,11 @@ import axios from "axios";
 
 const UpdateProfile = () => {
   const { user, setUser } = useUser();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [street, setStreet] = useState('');
-  const [city, setCity] = useState('');
-  const [zipcode, setZipcode] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [zipcode, setZipcode] = useState("");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -29,31 +29,27 @@ const UpdateProfile = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-  
+
     const updatedUser = {
       ...user,
       name,
       account: {
         ...user.account,
-        email
+        email,
       },
-      address: { 
-        street, 
-        city, 
-        zipcode: parseInt(zipcode) 
-      }
+      address: {
+        street,
+        city,
+        zipcode: parseInt(zipcode),
+      },
     };
-  
+
     axios
-      .put(
-        `http://localhost:9999/users/${user.id}`,
-        updatedUser,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      )
+      .put(`http://localhost:9999/users/${user.id}`, updatedUser, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => {
         setUser(res.data);
         setSuccess("Profile updated successfully!");
@@ -69,7 +65,6 @@ const UpdateProfile = () => {
       <Row>
         <NavbarComponent />
       </Row>
-
 
       <Row>
         <Col md={2}>
@@ -144,16 +139,16 @@ const UpdateProfile = () => {
                 </Form.Group>
               </Col>
             </Row>
-
+            <Row className="mt-3">
+              <Link to="/change-password">Change password</Link>
+            </Row>
             <Button variant="primary" type="submit" className="mt-4">
               Edit
             </Button>
           </Form>
         </Col>
       </Row>
-      <Row
-        
-      >
+      <Row>
         <Footer />
       </Row>
     </Container>

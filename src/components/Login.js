@@ -3,6 +3,7 @@ import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useUser } from "../UserContext";
+import Footer from "./Footer";
 import NavbarComponent from "./Navbar";
 
 const Login = () => {
@@ -91,6 +92,9 @@ const Login = () => {
           <Link to="/">Back to Home</Link>
         </Col>
         <Col></Col>
+      </Row>
+      <Row>
+        <Footer/>
       </Row>
     </Container>
   );
