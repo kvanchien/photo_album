@@ -13,6 +13,7 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -58,7 +59,7 @@ const Register = () => {
       await axios.post("http://localhost:9999/users", newUser);
 
       // Send verification email
-      await sendVerificationEmail(email, verificationCode);
+      await sendVerificationEmail(newUser.userId, email, verificationCode);
 
       console.log("Registration successful");
       navigate("/verify-account", { state: { email, verificationCode } });
@@ -68,16 +69,19 @@ const Register = () => {
     }
   };
 
-  const sendVerificationEmail = async (email, code) => {
+  const sendVerificationEmail = async (userId, email, code) => {
     try {
+      const baseLocation = window.location.origin;
+      const verifyMessage = `Your verification code is ${code}\n
+      Or click the following link to verify your account: ${baseLocation}/verification/${userId}/${code}`;
       await emailjs.send(
-        "service_zh7f8li", //Service ID
-        "template_as8273v", //Template ID
+        "service_zh7f8li", // Service ID
+        "template_as8273v", // Template ID
         {
           to_email: email,
-          code: code,
+          code: verifyMessage,
         },
-        "kJErhpnaspsVp_TNQ" //Public key
+        "kJErhpnaspsVp_TNQ" // Public key
       );
       console.log("Verification email sent successfully");
     } catch (error) {
@@ -92,7 +96,6 @@ const Register = () => {
       </Row>
       <Row>
         <Col></Col>
-
         <Col>
           <h2 className="text-center mt-3">Register</h2>
           {error && <Alert variant="danger">{error}</Alert>}

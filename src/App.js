@@ -14,6 +14,7 @@ import VerifyAccount from "./components/VerifyAccount";
 import Manage from "./components/Manage";
 import ForgotPassword from "./components/ForgotPassword";
 import ChangePassword from "./components/ChangePassword";
+import Verification from "./components/Verification";
 
 const App = () => {
   const [albums, setAlbums] = useState([]);
@@ -56,6 +57,10 @@ const App = () => {
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/manage" element={<Manage />} />
+          <Route
+            path="/verification/:userId/:verificationCode"
+            element={<Verification />}
+          />
         </Routes>
       </BrowserRouter>
     </UserProvider>
