@@ -51,17 +51,17 @@
     {
       "id": 4,
       "userId": 4,
-      "name": "chien",
+      "name": "test",
       "account": {
         "email": "chienkvhe163507@fpt.edu.vn",
-        "password": "1",
+        "password": "123",
         "activeCode": "",
         "isActive": true
       },
       "address": {
         "street": "",
         "city": "",
-        "zipcode": ""
+        "zipcode": null
       }
     },
     {
@@ -70,7 +70,7 @@
       "name": "cuong",
       "account": {
         "email": "cuongnhhe186494@fpt.edu.vn",
-        "password": "n5Ubc0",
+        "password": "123",
         "activeCode": "",
         "isActive": true
       },
@@ -93,6 +93,11 @@
       "albumId": 2,
       "description": "Spring Album",
       "userId": 2
+    },
+    {
+      "description": "tét",
+      "userId": 3,
+      "id": 3
     }
   ],
   "photos": [
@@ -172,9 +177,6 @@
         ],
         "thumbnailUrl": "p41.jpg"
       }
-    },
-    {
-      "id": 5
     }
   ],
   "comments": [

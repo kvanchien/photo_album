@@ -67,12 +67,18 @@ const UpdateProfile = () => {
       </Row>
 
       <Row>
-        <Col md={2}>
-          <Row>
-            <Link>User profile</Link>
+        <Col md={2} >
+          <Row className="mt-3 mb-3">
+            <Button style={{width:"150px"}} >
+            <Link style={{color:"white"}}>User profile</Link>
+            </Button>
+            
           </Row>
           <Row>
-            <Link to={"/manage"}>Albums</Link>
+            <Button style={{width:"150px"}}>
+            <Link style={{color:"white"}} to={"/manage"}>Albums</Link>
+            </Button>
+            
           </Row>
         </Col>
 
