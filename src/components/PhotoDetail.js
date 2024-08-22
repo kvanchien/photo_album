@@ -4,6 +4,7 @@ import { Button, Card, Container, Row, Col, Form, Modal } from "react-bootstrap"
 import { Link, useParams } from "react-router-dom";
 import emailjs from "emailjs-com";
 import Comments from "./Comments";
+import { useUser } from "../UserContext"; // Import the useUser hook
 
 function PhotoDetail() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ function PhotoDetail() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const { user } = useUser(); // Get the logged-in user
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,7 +47,7 @@ function PhotoDetail() {
     }
 
     const templateParams = {
-      user_name: "John Doe", // Replace with the actual user's name
+      user_name: user.name || "John Doe", // Replace with the actual user's name
       photo_url: window.location.href, // The URL of the current photo
       to_email: email, // The recipient's email address
     };
@@ -79,9 +81,11 @@ function PhotoDetail() {
           <Link to={"/"}>
             <Button variant="success">Go to Home</Button>
           </Link>
-          <Button variant="info" onClick={handleShareClick} className="ml-2">
-            Share via Email
-          </Button>
+          {user && ( // Conditionally render the share button
+            <Button variant="info" onClick={handleShareClick} className="ml-2">
+              Share via Email
+            </Button>
+          )}
         </Col>
       </Row>
       <Row>
