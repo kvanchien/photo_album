@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Card, Container, Row, Col } from "react-bootstrap";
+import { Button, Card, Container, Row, Col, Form, Modal } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
+import emailjs from "emailjs-com";
 import Comments from "./Comments";
 
 function PhotoDetail() {
   const { id } = useParams();
   const [photo, setPhoto] = useState({});
-  const [selectedImage, setSelectedImage] = useState(""); // State for the selected image
+  const [selectedImage, setSelectedImage] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const responseP = await axios.get("http://localhost:9999/photos/" + id);
-        setPhoto(responseP.data);
-        // Initialize selectedImage with the first image
-        if (responseP.data.image && responseP.data.image.url.length > 0) {
-          setSelectedImage(responseP.data.image.url[0]);
+        const response = await axios.get("http://localhost:9999/photos/" + id);
+        setPhoto(response.data);
+        if (response.data.image && response.data.image.url.length > 0) {
+          setSelectedImage(response.data.image.url[0]);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -26,8 +30,39 @@ function PhotoDetail() {
   }, [id]);
 
   const handleThumbnailClick = (src) => {
-    setSelectedImage(src); 
-    
+    setSelectedImage(src);
+  };
+
+  const handleShareClick = () => {
+    setShowModal(true);
+  };
+
+  const handleSendEmail = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+
+    const templateParams = {
+      user_name: "John Doe", // Replace with the actual user's name
+      photo_url: window.location.href, // The URL of the current photo
+      to_email: email, // The recipient's email address
+    };
+
+    try {
+      await emailjs.send(
+        "service_tzrcl6t", // Service ID
+        "template_4jxt27r", // Template ID
+        templateParams,
+        "OMf5QwixZwebkY_wH" // Public key
+      );
+      setSuccessMessage("Email sent successfully!");
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setEmailError("Failed to send email. Please try again.");
+    }
   };
 
   return (
@@ -44,6 +79,9 @@ function PhotoDetail() {
           <Link to={"/"}>
             <Button variant="success">Go to Home</Button>
           </Link>
+          <Button variant="info" onClick={handleShareClick} className="ml-2">
+            Share via Email
+          </Button>
         </Col>
       </Row>
       <Row>
@@ -56,9 +94,9 @@ function PhotoDetail() {
                   variant="top"
                   style={{
                     width: "30rem",
-                    height: "20rem"
+                    height: "20rem",
                   }}
-                  src={`/images/${selectedImage}`} // Use selectedImage state
+                  src={`/images/${selectedImage}`}
                 />
               </Card>
               <hr />
@@ -66,7 +104,7 @@ function PhotoDetail() {
                 {photo.image.url.map((url, index) => (
                   <Col
                     key={index}
-                    onClick={() => handleThumbnailClick(url)} // Pass the URL directly
+                    onClick={() => handleThumbnailClick(url)}
                   >
                     <Card.Img
                       variant="top"
@@ -95,8 +133,8 @@ function PhotoDetail() {
         <Col md={4}>
           <div>
             <h6>ID: {photo.id}</h6>
-            <h6>Title: {photo.title} </h6>
-            <h8>Tags: {photo.tags && photo.tags.join(", ")} </h8>
+            <h6>Title: {photo.title}</h6>
+            <h8>Tags: {photo.tags && photo.tags.join(", ")}</h8>
           </div>
         </Col>
       </Row>
@@ -104,6 +142,34 @@ function PhotoDetail() {
       <Row>
         <Comments />
       </Row>
+
+      {/* Modal for Email Sharing */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Share Photo via Email</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSendEmail}>
+            <Form.Group>
+              <Form.Label>Recipient Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Send Email
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {successMessage && (
+        <p style={{ color: "green", marginTop: "10px" }}>{successMessage}</p>
+      )}
     </Container>
   );
 }
