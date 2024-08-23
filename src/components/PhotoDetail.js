@@ -178,7 +178,7 @@ function PhotoDetail() {
           )}
         </Col>
         <Col md={4}>
-          <div>
+          <Row>
             <h6>ID: {photo.id}</h6>
             <h6>Title: {photo.title}</h6>
             <h8>Tags: {photo.tags && photo.tags.join(", ")}</h8>
