@@ -9,12 +9,13 @@ import {
   Form,
   Modal,
 } from "react-bootstrap";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import emailjs from "emailjs-com";
 import Comments from "./Comments";
 
 function PhotoDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [photo, setPhoto] = useState({});
   const [selectedImage, setSelectedImage] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -23,6 +24,7 @@ function PhotoDetail() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadImages, setUploadImages] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Retrieve user from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
@@ -121,6 +123,16 @@ function PhotoDetail() {
       reader.onerror = (error) => reject(error);
     });
 
+  const handleDeletePhoto = async () => {
+    try {
+      await axios.delete(`http://localhost:9999/photos/${id}`);
+      navigate("/", { replace: true });
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting photo:", error);
+    }
+  };
+
   return (
     <Container>
       <Row>
@@ -136,18 +148,29 @@ function PhotoDetail() {
             <Button variant="success">Go to Home</Button>
           </Link>
           {user && (
-            <Button variant="info" onClick={handleShareClick} className="ml-2">
-              Share via Email
-            </Button>
-          )}
-          {user && (
-            <Button
-              variant="primary"
-              onClick={() => setShowUploadModal(true)}
-              className="ml-2"
-            >
-              Upload Image
-            </Button>
+            <>
+              <Button
+                variant="info"
+                onClick={handleShareClick}
+                className="ml-2"
+              >
+                Share via Email
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => setShowUploadModal(true)}
+                className="ml-2"
+              >
+                Upload Image
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="ml-2"
+              >
+                Delete Photo
+              </Button>
+            </>
           )}
         </Col>
       </Row>
@@ -274,17 +297,42 @@ function PhotoDetail() {
               <Form.Control
                 type="file"
                 multiple
-                onChange={(e) => setUploadImages([...e.target.files])}
+                onChange={(e) => setUploadImages(Array.from(e.target.files))}
               />
             </Form.Group>
+            <Button
+              variant="primary"
+              onClick={handleUploadImages}
+              className="mt-3"
+            >
+              Upload
+            </Button>
           </Form>
         </Modal.Body>
+      </Modal>
+
+      <Modal
+        show={showDeleteConfirm}
+        onHide={() => setShowDeleteConfirm(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            Are you sure you want to delete this photo? This action cannot be
+            undone.
+          </p>
+        </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowUploadModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleUploadImages}>
-            Upload Images
+          <Button variant="danger" onClick={handleDeletePhoto}>
+            Delete
           </Button>
         </Modal.Footer>
       </Modal>

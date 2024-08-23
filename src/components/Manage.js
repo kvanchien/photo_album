@@ -26,6 +26,7 @@ const Manage = () => {
   const [newPhotoThumbnail, setNewPhotoThumbnail] = useState(null);
   const [newPhotoImages, setNewPhotoImages] = useState([]);
   const [newPhotoTags, setNewPhotoTags] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -93,6 +94,7 @@ const Manage = () => {
       console.error("Error creating album:", error);
     }
   };
+
   const handleCreatePhoto = async () => {
     try {
       const existingPhotosResponse = await axios.get(
@@ -154,6 +156,26 @@ const Manage = () => {
       reader.onerror = (error) => reject(error);
     });
 
+  const handleDeleteAlbum = async () => {
+    try {
+      // Delete photos associated with the album
+      await Promise.all(
+        photos.map(async (photo) => {
+          await axios.delete(`http://localhost:9999/photos/${photo.photoId}`);
+        })
+      );
+
+      // Delete the album itself
+      await axios.delete(`http://localhost:9999/albums/${selectedAlbum}`);
+      setAlbums(albums.filter((album) => album.albumId !== selectedAlbum));
+      setSelectedAlbum(null);
+      setPhotos([]);
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error("Error deleting album:", error);
+    }
+  };
+
   return (
     <Container fluid>
       <Row>
@@ -202,7 +224,7 @@ const Manage = () => {
           </ListGroup>
         </Col>
 
-        {/* Right Column: Photos */}
+        {/* Right Column: Photos and Delete Album */}
         <Col md={6} className="p-4">
           <div className="d-flex justify-content-between align-items-center">
             <h5>Photos</h5>
@@ -224,6 +246,15 @@ const Manage = () => {
               <p>No photos available</p>
             )}
           </Row>
+          {/* Delete Album Button */}
+          <Button
+            variant="danger"
+            onClick={() => setShowDeleteConfirm(true)}
+            disabled={!selectedAlbum}
+            className="mt-4"
+          >
+            Delete Album
+          </Button>
         </Col>
       </Row>
 
@@ -316,6 +347,31 @@ const Manage = () => {
           </Button>
           <Button variant="primary" onClick={handleCreatePhoto}>
             Upload Photos
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        show={showDeleteConfirm}
+        onHide={() => setShowDeleteConfirm(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this album and all associated photos?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteAlbum}>
+            Delete
           </Button>
         </Modal.Footer>
       </Modal>
