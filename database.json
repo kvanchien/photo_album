@@ -75,25 +75,9 @@
         "isActive": true
       },
       "address": {
-        "street": "",
-        "city": "",
-        "zipcode": ""
-      }
-    },
-    {
-      "id": 6,
-      "userId": 6,
-      "name": "Duc Huy",
-      "account": {
-        "email": "duchuy24hour@gmail.com",
-        "password": "123",
-        "activeCode": "",
-        "isActive": true
-      },
-      "address": {
-        "street": "",
-        "city": "",
-        "zipcode": ""
+        "street": "123",
+        "city": "123",
+        "zipcode": 123
       }
     }
   ],
@@ -109,6 +93,11 @@
       "albumId": 2,
       "description": "Spring Album",
       "userId": 2
+    },
+    {
+      "description": "234",
+      "userId": 5,
+      "id": 3
     }
   ],
   "photos": [
@@ -129,7 +118,11 @@
           "p1_2.jpg",
           "p1_3.jpg"
         ],
-        "thumbnailUrl": "p11.jpg"
+        "base64": []
+      },
+      "thumbnail": {
+        "url": "p11.jpg",
+        "base64": ""
       }
     },
     {
@@ -149,7 +142,11 @@
           "p2_2.jpg",
           "p2_3.jpg"
         ],
-        "thumbnailUrl": "p21.jpg"
+        "base64": []
+      },
+      "thumbnail": {
+        "url": "p21.jpg",
+        "base64": ""
       }
     },
     {
@@ -167,7 +164,11 @@
           "p3_2.jpg",
           "p3_3.jpg"
         ],
-        "thumbnailUrl": "p31.jpg"
+        "base64": []
+      },
+      "thumbnail": {
+        "url": "p31.jpg",
+        "base64": ""
       }
     },
     {
@@ -186,7 +187,11 @@
           "p4_2.jpg",
           "p4_3.jpg"
         ],
-        "thumbnailUrl": "p41.jpg"
+        "base64": []
+      },
+      "thumbnail": {
+        "url": "p41.jpg",
+        "base64": ""
       }
     }
   ],
@@ -234,11 +239,8 @@
       "rate": 4
     },
     {
-      "id": 7,
-      "photoId": 2,
-      "userId": 2,
-      "text": "Trung bình",
-      "rate": 3
+      "text": "Trung bình1",
+      "id": 7
     },
     {
       "id": 8,
@@ -250,16 +252,25 @@
     {
       "photoId": 3,
       "userId": 2,
-      "text": "ac",
-      "rate": 5,
-      "id": 9
-    },
-    {
-      "photoId": 3,
-      "userId": 2,
       "text": "k",
       "rate": 5,
       "id": 10
+    },
+    {
+      "photoId": 2,
+      "userId": 2,
+      "text": "a",
+      "rate": 5,
+      "parentId": 7,
+      "id": 11
+    },
+    {
+      "photoId": 1,
+      "userId": 2,
+      "text": "ok",
+      "rate": null,
+      "parentId": 1,
+      "id": 12
     }
   ]
 }

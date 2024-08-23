@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Card, Container, Row, Col, Form, Modal } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Container,
+  Row,
+  Col,
+  Form,
+  Modal,
+} from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import emailjs from "emailjs-com";
 import Comments from "./Comments";
-import { useUser } from "../UserContext"; // Import the useUser hook
 
 function PhotoDetail() {
   const { id } = useParams();
@@ -14,15 +21,23 @@ function PhotoDetail() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const { user } = useUser(); // Get the logged-in user
+
+  // Retrieve user from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:9999/photos/" + id);
         setPhoto(response.data);
+
         if (response.data.image && response.data.image.url.length > 0) {
-          setSelectedImage(response.data.image.url[0]);
+          const firstImageUrl = response.data.image.url[0];
+          setSelectedImage(
+            firstImageUrl
+              ? `/images/${firstImageUrl}`
+              : `data:image/jpeg;base64,${response.data.image.base64[0]}`
+          );
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -31,8 +46,10 @@ function PhotoDetail() {
     fetchData();
   }, [id]);
 
-  const handleThumbnailClick = (src) => {
-    setSelectedImage(src);
+  const handleThumbnailClick = (url, base64) => {
+    setSelectedImage(
+      url ? `/images/${url}` : `data:image/jpeg;base64,${base64}`
+    );
   };
 
   const handleShareClick = () => {
@@ -47,7 +64,7 @@ function PhotoDetail() {
     }
 
     const templateParams = {
-      user_name: user.name || "John Doe", // Replace with the actual user's name
+      user_name: user ? user.name : "John Doe", // Replace with the actual user's name
       photo_url: window.location.href, // The URL of the current photo
       to_email: email, // The recipient's email address
     };
@@ -77,11 +94,11 @@ function PhotoDetail() {
         </Container>
       </Row>
       <Row>
-        <Col>
+        <Col className="mb-3">
           <Link to={"/"}>
             <Button variant="success">Go to Home</Button>
           </Link>
-          {user && ( // Conditionally render the share button
+          {user && (
             <Button variant="info" onClick={handleShareClick} className="ml-2">
               Share via Email
             </Button>
@@ -91,7 +108,8 @@ function PhotoDetail() {
       <Row>
         <Container></Container>
         <Col md={8}>
-          {photo.image && photo.image.url.length > 0 ? (
+          {photo.image &&
+          (photo.image.url.length > 0 || photo.image.base64.length > 0) ? (
             <>
               <Card style={{ width: "2rem" }}>
                 <Card.Img
@@ -100,7 +118,7 @@ function PhotoDetail() {
                     width: "30rem",
                     height: "20rem",
                   }}
-                  src={`/images/${selectedImage}`}
+                  src={selectedImage}
                 />
               </Card>
               <hr />
@@ -108,11 +126,36 @@ function PhotoDetail() {
                 {photo.image.url.map((url, index) => (
                   <Col
                     key={index}
-                    onClick={() => handleThumbnailClick(url)}
+                    onClick={() =>
+                      handleThumbnailClick(url, photo.image.base64[index])
+                    }
                   >
                     <Card.Img
                       variant="top"
                       src={`/images/${url}`}
+                      style={{
+                        width: "10rem",
+                        objectFit: "cover",
+                        border: "1px solid transparent",
+                      }}
+                      onMouseOver={(e) =>
+                        (e.currentTarget.style.border = "2px solid red")
+                      }
+                      onMouseOut={(e) =>
+                        (e.currentTarget.style.border = "1px solid transparent")
+                      }
+                    />
+                  </Col>
+                ))}
+                {/* Render Base64 thumbnails if no URLs are present */}
+                {photo.image.base64.map((base64, index) => (
+                  <Col
+                    key={index}
+                    onClick={() => handleThumbnailClick(null, base64)}
+                  >
+                    <Card.Img
+                      variant="top"
+                      src={`data:image/jpeg;base64,${base64}`}
                       style={{
                         width: "10rem",
                         objectFit: "cover",
@@ -135,11 +178,11 @@ function PhotoDetail() {
           )}
         </Col>
         <Col md={4}>
-          <div>
+          <Row>
             <h6>ID: {photo.id}</h6>
             <h6>Title: {photo.title}</h6>
             <h8>Tags: {photo.tags && photo.tags.join(", ")}</h8>
-          </div>
+          </Row>
         </Col>
       </Row>
 
@@ -147,7 +190,6 @@ function PhotoDetail() {
         <Comments />
       </Row>
 
-      {/* Modal for Email Sharing */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Share Photo via Email</Modal.Title>

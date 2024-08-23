@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+  import React, { useState } from "react";
 import { Form, Button, Container, Alert, Row, Col } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import NavbarComponent from "./Navbar";
 import axios from "axios";
@@ -10,7 +10,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const navigate = useNavigate();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

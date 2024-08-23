@@ -1,30 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useUser } from "../UserContext";
 import NavbarComponent from "./Navbar";
 import Footer from "./Footer";
 import axios from "axios";
 
 const UpdateProfile = () => {
-  const { user, setUser } = useUser();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [street, setStreet] = useState("");
-  const [city, setCity] = useState("");
-  const [zipcode, setZipcode] = useState("");
+  const user = JSON.parse(localStorage.getItem("user")); // Get user from local storage
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.account.email || "");
+  const [street, setStreet] = useState(user?.address.street || "");
+  const [city, setCity] = useState(user?.address.city || "");
+  const [zipcode, setZipcode] = useState(user?.address.zipcode || "");
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name);
-      setEmail(user.account.email);
-      setStreet(user.address.street);
-      setCity(user.address.city);
-      setZipcode(user.address.zipcode);
-    }
-  }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -51,8 +40,9 @@ const UpdateProfile = () => {
         },
       })
       .then((res) => {
-        setUser(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data)); // Update user in local storage
         setSuccess("Profile updated successfully!");
+        window.location.reload(); // Reload the page
       })
       .catch((err) => {
         setError("Failed to update profile.");
@@ -68,11 +58,17 @@ const UpdateProfile = () => {
 
       <Row>
         <Col md={2}>
-          <Row>
-            <Link>User profile</Link>
+          <Row className="mt-3 mb-3">
+            <Button style={{ width: "150px" }}>
+              <Link style={{ color: "white" }}>User profile</Link>
+            </Button>
           </Row>
           <Row>
-            <Link to={"/manage"}>Albums</Link>
+            <Button style={{ width: "150px" }}>
+              <Link style={{ color: "white" }} to="/manage">
+                Albums
+              </Link>
+            </Button>
           </Row>
         </Col>
 
@@ -86,7 +82,6 @@ const UpdateProfile = () => {
               <Form.Control
                 type="text"
                 placeholder="Enter your name"
-                name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -107,7 +102,6 @@ const UpdateProfile = () => {
                   <Form.Label>Street</Form.Label>
                   <Form.Control
                     type="text"
-                    name="street"
                     placeholder="Enter your street"
                     value={street}
                     onChange={(e) => setStreet(e.target.value)}
@@ -120,7 +114,6 @@ const UpdateProfile = () => {
                   <Form.Control
                     type="text"
                     placeholder="Enter your city"
-                    name="city"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                   />
@@ -131,7 +124,6 @@ const UpdateProfile = () => {
                   <Form.Label>Zipcode</Form.Label>
                   <Form.Control
                     type="text"
-                    name="zipcode"
                     placeholder="Enter your zipcode"
                     value={zipcode}
                     onChange={(e) => setZipcode(e.target.value)}
