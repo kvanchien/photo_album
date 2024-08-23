@@ -171,6 +171,7 @@ const Manage = () => {
       setSelectedAlbum(null);
       setPhotos([]);
       setShowDeleteConfirm(false);
+      alert("Album deleted successfully");
     } catch (error) {
       console.error("Error deleting album:", error);
     }

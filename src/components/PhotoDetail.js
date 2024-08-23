@@ -28,6 +28,7 @@ function PhotoDetail() {
   const [uploadImages, setUploadImages] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [albumCreator, setAlbumCreator] = useState(""); // To store the album creator
+  const [ownerName, setOwnerName] = useState(""); // To store the owner's name
 
   // Retrieve user from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
@@ -36,7 +37,7 @@ function PhotoDetail() {
     const fetchData = async () => {
       try {
         const photoResponse = await axios.get(
-          "http://localhost:9999/photos/" + id
+          `http://localhost:9999/photos/${id}`
         );
         const photoData = photoResponse.data;
 
@@ -55,6 +56,13 @@ function PhotoDetail() {
           );
           const albumData = albumResponse.data;
           setAlbumCreator(albumData.userId);
+
+          // Fetch user info to get the owner's name
+          const userResponse = await axios.get(
+            `http://localhost:9999/users/${albumData.userId}`
+          );
+          const userData = userResponse.data;
+          setOwnerName(userData.name);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -93,6 +101,7 @@ function PhotoDetail() {
       );
       setSuccessMessage("Email sent successfully!");
       setShowModal(false);
+      alert("Email sent successfully!");
     } catch (error) {
       console.error("Error sending email:", error);
       setEmailError("Failed to send email. Please try again.");
@@ -135,6 +144,7 @@ function PhotoDetail() {
   const handleDeletePhoto = async () => {
     try {
       await axios.delete(`http://localhost:9999/photos/${id}`);
+      alert("Photo deleted successfully!");
       navigate("/", { replace: true });
       window.location.reload();
     } catch (error) {
@@ -156,7 +166,9 @@ function PhotoDetail() {
         <Row>
           <Col className="mb-3">
             <Link to={"/"}>
-              <Button variant="success">Go to Home</Button>
+              <Button variant="success" style={{ marginRight: "10px" }}>
+                Go to Home
+              </Button>
             </Link>
             {user && (
               <>
@@ -164,6 +176,7 @@ function PhotoDetail() {
                   variant="info"
                   onClick={handleShareClick}
                   className="ml-2"
+                  style={{ marginRight: "10px" }}
                 >
                   Share via Email
                 </Button>
@@ -171,6 +184,7 @@ function PhotoDetail() {
                   variant="primary"
                   onClick={() => setShowUploadModal(true)}
                   className="ml-2"
+                  style={{ marginRight: "10px" }}
                 >
                   Upload Image
                 </Button>
@@ -179,6 +193,7 @@ function PhotoDetail() {
                     variant="danger"
                     onClick={() => setShowDeleteConfirm(true)}
                     className="ml-2"
+                    style={{ marginRight: "10px" }}
                   >
                     Delete Photo
                   </Button>
@@ -264,102 +279,94 @@ function PhotoDetail() {
           </Col>
           <Col md={4}>
             <Row>
-              <h6>ID: {photo.id}</h6>
-              <h6>Title: {photo.title}</h6>
-              <h8>Tags: {photo.tags && photo.tags.join(", ")}</h8>
+              <h4>ID: {photo.id}</h4>
+              <h5>Title: {photo.title}</h5>
+              <h6>Tags: {photo.tags && photo.tags.join(", ")}</h6>
+              <h6>Owner: {ownerName}</h6> {/* Display the owner's name */}
             </Row>
           </Col>
         </Row>
-
         <Row>
-          <Comments />
+          <Col>
+            <Comments photoId={id} />
+          </Col>
         </Row>
-
-        <Modal show={showModal} onHide={() => setShowModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Share Photo via Email</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form onSubmit={handleSendEmail}>
-              <Form.Group>
-                <Form.Label>Recipient Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                {emailError && <p style={{ color: "red" }}>{emailError}</p>}
-              </Form.Group>
-              <Button variant="primary" type="submit">
-                Send Email
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => setShowModal(false)}
-                className="ml-2"
-              >
-                Close
-              </Button>
-            </Form>
-          </Modal.Body>
-        </Modal>
-
-        <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Upload Images</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form>
-              <Form.Group controlId="formFileMultiple">
-                <Form.Label>Select Images</Form.Label>
-                <Form.Control
-                  type="file"
-                  multiple
-                  onChange={(e) => setUploadImages(Array.from(e.target.files))}
-                />
-              </Form.Group>
-              <Button
-                variant="primary"
-                onClick={handleUploadImages}
-                className="mt-3"
-              >
-                Upload
-              </Button>
-            </Form>
-          </Modal.Body>
-        </Modal>
-
-        <Modal
-          show={showDeleteConfirm}
-          onHide={() => setShowDeleteConfirm(false)}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Confirm Deletion</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>
-              Are you sure you want to delete this photo? This action cannot be
-              undone.
-            </p>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => setShowDeleteConfirm(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDeletePhoto}>
-              Delete
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        {successMessage && (
-          <p style={{ color: "green", marginTop: "10px" }}>{successMessage}</p>
-        )}
       </Container>
+
+      {/* Share via Email Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Share Photo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSendEmail}>
+            <Form.Group controlId="formBasicEmail">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter recipient's email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              {emailError && (
+                <Form.Text className="text-danger">{emailError}</Form.Text>
+              )}
+              {successMessage && (
+                <Form.Text className="text-success">{successMessage}</Form.Text>
+              )}
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Send
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Upload Image Modal */}
+      <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Upload Images</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.File
+              id="imageUpload"
+              label="Choose Images"
+              multiple
+              accept="image/*"
+              onChange={(e) => setUploadImages(e.target.files)}
+            />
+          </Form.Group>
+          <Button variant="primary" onClick={handleUploadImages}>
+            Upload
+          </Button>
+        </Modal.Body>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        show={showDeleteConfirm}
+        onHide={() => setShowDeleteConfirm(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete this photo?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeletePhoto}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Footer />
     </>
   );
