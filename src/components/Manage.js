@@ -271,7 +271,7 @@ export default function Manage() {
                           {photos
                             .filter((photo) => photo.albumId === album.albumId)
                             .map((photo) => (
-                              <li key={photo.id}>
+                              <li key={photo.id} style={{marginBottom:"10px"}}>
                                 <img
                                   src={`/images/${photo.image.thumbnailUrl}`}
                                   alt={photo.title}

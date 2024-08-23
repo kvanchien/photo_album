@@ -1,14 +1,29 @@
-import React from 'react';
+import {React, useState, useEffect} from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../UserContext';
+import axios from 'axios';
 
 
 const NavbarComponent = () => {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
 
+  const [albums, setAlbums] = useState([]);
+
+
+    useEffect(() => {
+        axios.get("http://localhost:9999/albums")
+            .then(res => setAlbums(res.data))
+            .catch(err => console.error(err));
+
+        const loggedInUser = JSON.parse(localStorage.getItem('user'));
+        if (loggedInUser) {
+            setUser(loggedInUser);
+        }
+    }, []);
   const handleLogout = () => {
+    localStorage.removeItem('user');
     setUser(null);
     navigate('/');
   };
