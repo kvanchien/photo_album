@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Container, Row, Col, Form, Card } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Form,
+  Card,
+  Button,
+  ListGroup,
+} from "react-bootstrap";
 import Album from "./Album";
 import Photo from "./Photo";
 
@@ -28,9 +36,29 @@ const Body = ({ albums, photos }) => {
       <Row>
         <Col md={9}>
           <Row className="mb-3" style={{ justifyContent: "center" }}>
+            <Col md={12}>
+              <Button
+                variant={selectedAlbum === null ? "primary" : "outline-primary"}
+                onClick={() => setSelectedAlbum(null)}
+                className="mb-2"
+              >
+                All Albums
+              </Button>
+            </Col>
             {albums.map((album) => (
               <Col key={album.albumId} md={4}>
-                <Album album={album} onSelect={setSelectedAlbum} />
+                <Button
+                  variant={
+                    selectedAlbum === album.albumId
+                      ? "primary"
+                      : "outline-primary"
+                  }
+                  onClick={() => setSelectedAlbum(album.albumId)}
+                  className="mb-2"
+                  style={{ width: "100%" }}
+                >
+                  {album.description}
+                </Button>
               </Col>
             ))}
           </Row>
@@ -56,21 +84,26 @@ const Body = ({ albums, photos }) => {
           <Card>
             <Card.Body>
               <Card.Title>Tags</Card.Title>
-              {allTags.map((tag) => (
-                <Form.Check
-                  key={tag}
-                  type="checkbox"
-                  label={tag}
-                  checked={selectedTags.includes(tag)}
-                  onChange={() => {
-                    if (selectedTags.includes(tag)) {
-                      setSelectedTags(selectedTags.filter((t) => t !== tag));
-                    } else {
-                      setSelectedTags([...selectedTags, tag]);
-                    }
-                  }}
-                />
-              ))}
+              <ListGroup>
+                {allTags.map((tag) => (
+                  <ListGroup.Item key={tag}>
+                    <Form.Check
+                      type="checkbox"
+                      label={tag}
+                      checked={selectedTags.includes(tag)}
+                      onChange={() => {
+                        if (selectedTags.includes(tag)) {
+                          setSelectedTags(
+                            selectedTags.filter((t) => t !== tag)
+                          );
+                        } else {
+                          setSelectedTags([...selectedTags, tag]);
+                        }
+                      }}
+                    />
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
             </Card.Body>
           </Card>
         </Col>
