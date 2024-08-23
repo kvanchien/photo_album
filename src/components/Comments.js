@@ -4,14 +4,13 @@ import { Card, ListGroup, Form, Button } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 
 const Comments = () => {
-  const navigate = useNavigate();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState(5);
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
   const [editingCommentId, setEditingCommentId] = useState(null);
-  const [editedComment, setEditedComment] = useState('');
+  const [editedComment, setEditedComment] = useState("");
   const [editedRating, setEditedRating] = useState(5);
   const [replyingToId, setReplyingToId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -93,7 +92,9 @@ const Comments = () => {
         <br />
         <Form onSubmit={handleSubmitComment}>
           <Form.Group className="mb-3">
-            <Form.Label>{replyingToId ? 'Your Reply' : 'Your Comment'}</Form.Label>
+            <Form.Label>
+              {replyingToId ? "Your Reply" : "Your Comment"}
+            </Form.Label>
             <Form.Control
               as="textarea"
               rows={3}
@@ -116,10 +117,14 @@ const Comments = () => {
             </Form.Group>
           )}
           <Button variant="primary" type="submit">
-            {replyingToId ? 'Post Reply' : 'Post Comment'}
+            {replyingToId ? "Post Reply" : "Post Comment"}
           </Button>
           {replyingToId && (
-            <Button variant="secondary" className="ml-2" onClick={() => setReplyingToId(null)}>
+            <Button
+              variant="secondary"
+              className="ml-2"
+              onClick={() => setReplyingToId(null)}
+            >
               Cancel Reply
             </Button>
           )}

@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Container,
   Row,
   Col,
-  Form,
+  ListGroup,
   Modal,
-  Card,
+  Form,
 } from "react-bootstrap";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import NavbarComponent from "./Navbar";
 import Footer from "./Footer";
+import Photo from "./Photo";
 
 const Manage = () => {
   const [user, setUser] = useState(null);
@@ -33,8 +34,19 @@ const Manage = () => {
     }
   }, []);
 
-  const fetchAlbums = useCallback(async () => {
-    if (!user) return;
+  useEffect(() => {
+    if (user) {
+      fetchAlbums();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (selectedAlbum) {
+      fetchPhotos(selectedAlbum);
+    }
+  }, [selectedAlbum]);
+
+  const fetchAlbums = async () => {
     try {
       const response = await axios.get(`http://localhost:9999/albums`);
       const userAlbums = response.data.filter(
@@ -42,17 +54,12 @@ const Manage = () => {
       );
       setAlbums(userAlbums);
       if (userAlbums.length > 0) {
-        setSelectedAlbum(userAlbums[0].albumId); // Set the first album as default
-        fetchPhotos(userAlbums[0].albumId);
+        setSelectedAlbum(userAlbums[0].albumId);
       }
     } catch (error) {
       console.error("Error fetching albums:", error);
     }
-  }, [user]);
-
-  useEffect(() => {
-    fetchAlbums();
-  }, [fetchAlbums]);
+  };
 
   const fetchPhotos = async (albumId) => {
     try {
@@ -65,48 +72,12 @@ const Manage = () => {
     }
   };
 
-  const handleSelectAlbum = (albumId) => {
-    setSelectedAlbum(albumId);
-    fetchPhotos(albumId);
-  };
-
-  const handleDeleteAlbum = async (albumId) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this album? This action cannot be undone."
-      )
-    ) {
-      try {
-        await axios.delete(`http://localhost:9999/albums/${albumId}`);
-        const updatedAlbums = albums.filter(
-          (album) => album.albumId !== albumId
-        );
-        setAlbums(updatedAlbums);
-        if (updatedAlbums.length > 0) {
-          setSelectedAlbum(updatedAlbums[0].albumId); // Set the first album as default
-          fetchPhotos(updatedAlbums[0].albumId);
-        } else {
-          setSelectedAlbum(null);
-          setPhotos([]);
-        }
-      } catch (error) {
-        console.error("Error deleting album:", error);
-      }
-    }
-  };
-
-  const handleDeletePhoto = async (photoId) => {
-    try {
-      await axios.delete(`http://localhost:9999/photos/${photoId}`);
-      setPhotos(photos.filter((photo) => photo.photoId !== photoId));
-    } catch (error) {
-      console.error("Error deleting photo:", error);
-    }
-  };
-
   const handleCreateAlbum = async () => {
     try {
+      const newAlbumId =
+        albums.length > 0 ? Math.max(...albums.map((a) => a.albumId)) + 1 : 1;
       const newAlbum = {
+        albumId: newAlbumId,
         description: newAlbumDescription,
         userId: user.userId,
       };
@@ -114,40 +85,52 @@ const Manage = () => {
         "http://localhost:9999/albums",
         newAlbum
       );
-      const updatedAlbums = [...albums, response.data];
-      setAlbums(updatedAlbums);
-      setSelectedAlbum(response.data.albumId); // Set the new album as selected
+      setAlbums([...albums, response.data]);
       setShowAlbumModal(false);
       setNewAlbumDescription("");
+      setSelectedAlbum(newAlbumId);
     } catch (error) {
       console.error("Error creating album:", error);
     }
   };
-
   const handleCreatePhoto = async () => {
     try {
+      const existingPhotosResponse = await axios.get(
+        "http://localhost:9999/photos"
+      );
+      const allPhotos = existingPhotosResponse.data;
+      const newPhotoId =
+        allPhotos.length > 0
+          ? Math.max(...allPhotos.map((p) => p.photoId)) + 1
+          : 1;
+
+      // Convert thumbnail to base64
+      const thumbnailBase64 = newPhotoThumbnail
+        ? await toBase64(newPhotoThumbnail)
+        : "";
+
+      // Convert other images to base64
       const imageUrls = await Promise.all(
         newPhotoImages.map(async (image) => {
-          const base64 = await toBase64(image);
-          return base64;
+          return await toBase64(image);
         })
       );
 
-      const thumbnailBase64 = await toBase64(newPhotoThumbnail);
-
       const newPhoto = {
+        photoId: newPhotoId,
         title: newPhotoTitle,
         albumId: selectedAlbum,
         tags: newPhotoTags.split(" "),
         image: {
-          url: [], // URLs can be added here if needed
+          url: [], // If URLs are provided, they can be added here
           base64: imageUrls,
         },
         thumbnail: {
-          url: "", // URLs can be added here if needed
+          url: "", // If URL is provided for thumbnail, it can be added here
           base64: thumbnailBase64,
         },
       };
+
       const response = await axios.post(
         "http://localhost:9999/photos",
         newPhoto
@@ -161,10 +144,6 @@ const Manage = () => {
     } catch (error) {
       console.error("Error creating photo:", error);
     }
-  };
-
-  const getImageSrc = (image) => {
-    return image.url ? `/images/${image.url}` : image.base64;
   };
 
   const toBase64 = (file) =>
@@ -193,50 +172,37 @@ const Manage = () => {
               <Button>User Profile</Button>
             </Link>
             <h5 className="mt-4">Albums</h5>
-          </div>
-        </Col>
-
-        {/* Center Column */}
-        <Col md={3} className="p-4" style={{ borderRight: "1px solid #ccc" }}>
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h5>Manage Albums</h5>
             <Button onClick={() => setShowAlbumModal(true)}>
               Create Album
             </Button>
           </div>
-          {albums.length > 0 ? (
-            albums.map((album) => (
-              <Form
+        </Col>
+
+        {/* Center Column: Album Selection */}
+        <Col md={3} className="p-4" style={{ borderRight: "1px solid #ccc" }}>
+          <h5>Albums</h5>
+          <ListGroup>
+            {albums.map((album) => (
+              <ListGroup.Item
                 key={album.albumId}
-                className={`d-flex justify-content-between align-items-center mb-2 p-2 ${
-                  album.albumId === selectedAlbum ? "bg-primary text-white" : ""
-                }`}
-                onClick={() => handleSelectAlbum(album.albumId)}
+                action
+                active={album.albumId === selectedAlbum}
+                onClick={() => setSelectedAlbum(album.albumId)}
               >
                 <Form.Check
                   type="radio"
-                  checked={album.albumId === selectedAlbum}
-                  readOnly
+                  id={`album-${album.albumId}`}
                   label={album.description}
+                  name="albumSelection"
+                  checked={album.albumId === selectedAlbum}
+                  onChange={() => setSelectedAlbum(album.albumId)}
                 />
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteAlbum(album.albumId);
-                  }}
-                >
-                  Delete
-                </Button>
-              </Form>
-            ))
-          ) : (
-            <p>No albums available</p>
-          )}
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
         </Col>
 
-        {/* Right Column */}
+        {/* Right Column: Photos */}
         <Col md={6} className="p-4">
           <div className="d-flex justify-content-between align-items-center">
             <h5>Photos</h5>
@@ -247,111 +213,97 @@ const Manage = () => {
               Upload Photo
             </Button>
           </div>
-          {selectedAlbum ? (
-            <>
-              <Row className="mt-3">
-                {photos.length > 0 ? (
-                  photos.map((photo) => (
-                    <Col md={4} key={photo.photoId} className="mb-3">
-                      <Card className="text-center">
-                        <Card.Img
-                          variant="top"
-                          src={getImageSrc(photo.thumbnail)}
-                          alt={photo.title}
-                          className="img-thumbnail"
-                          style={{
-                            cursor: "pointer",
-                            height: "150px",
-                            objectFit: "cover",
-                          }}
-                          onClick={() => handleDeletePhoto(photo.photoId)}
-                        />
-                        <Card.Body>
-                          <Link
-                            to={`/photos/${photo.photoId}`}
-                            className="d-block mt-2"
-                          >
-                            {photo.title}
-                          </Link>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  ))
-                ) : (
-                  <p>No photos available</p>
-                )}
-              </Row>
-            </>
-          ) : (
-            <h5>Select an album to view photos</h5>
-          )}
+          <Row className="mt-3">
+            {photos.length > 0 ? (
+              photos.map((photo) => (
+                <Col md={4} key={photo.photoId} className="mb-3">
+                  <Photo photo={photo} />
+                </Col>
+              ))
+            ) : (
+              <p>No photos available</p>
+            )}
+          </Row>
         </Col>
       </Row>
 
-      {/* Modals */}
-      <Modal show={showAlbumModal} onHide={() => setShowAlbumModal(false)}>
-        <Modal.Header closeButton>Create New Album</Modal.Header>
+      <Footer />
+
+      {/* Album Creation Modal */}
+      <Modal
+        show={showAlbumModal}
+        onHide={() => setShowAlbumModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Create Album</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="formAlbumDescription">
+            <Form.Group controlId="albumDescription">
               <Form.Label>Description</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter album description"
                 value={newAlbumDescription}
                 onChange={(e) => setNewAlbumDescription(e.target.value)}
+                placeholder="Enter album description"
               />
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowAlbumModal(false)}>
-            Close
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleCreateAlbum}>
-            Save Changes
+            Create Album
           </Button>
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showPhotoModal} onHide={() => setShowPhotoModal(false)}>
-        <Modal.Header closeButton>Add New Photo</Modal.Header>
+      {/* Photo Upload Modal */}
+      <Modal
+        show={showPhotoModal}
+        onHide={() => setShowPhotoModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Upload Photos</Modal.Title>
+        </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="formPhotoTitle">
+            <Form.Group controlId="photoTitle">
               <Form.Label>Title</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter photo title"
                 value={newPhotoTitle}
                 onChange={(e) => setNewPhotoTitle(e.target.value)}
+                placeholder="Enter photo title"
               />
             </Form.Group>
 
-            <Form.Group controlId="formPhotoTags">
+            <Form.Group controlId="photoTags">
               <Form.Label>Tags</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Enter tags (separated by spaces)"
                 value={newPhotoTags}
                 onChange={(e) => setNewPhotoTags(e.target.value)}
+                placeholder="Enter tags (separated by spaces)"
               />
             </Form.Group>
 
-            <Form.Group controlId="formPhotoThumbnail">
-              <Form.Label>Thumbnail Image</Form.Label>
+            <Form.Group controlId="photoThumbnail">
+              <Form.Label>Thumbnail</Form.Label>
               <Form.Control
                 type="file"
-                accept="image/*"
                 onChange={(e) => setNewPhotoThumbnail(e.target.files[0])}
               />
             </Form.Group>
 
-            <Form.Group controlId="formPhotoImages">
-              <Form.Label>Images</Form.Label>
+            <Form.Group controlId="photoImages">
+              <Form.Label>Photos</Form.Label>
               <Form.Control
                 type="file"
-                accept="image/*"
                 multiple
                 onChange={(e) => setNewPhotoImages([...e.target.files])}
               />
@@ -360,17 +312,13 @@ const Manage = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowPhotoModal(false)}>
-            Close
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleCreatePhoto}>
-            Add Photo
+            Upload Photos
           </Button>
         </Modal.Footer>
       </Modal>
-
-      <Row>
-        <Footer />
-      </Row>
     </Container>
   );
 };

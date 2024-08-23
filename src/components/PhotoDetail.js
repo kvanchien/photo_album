@@ -29,14 +29,18 @@ function PhotoDetail() {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:9999/photos/" + id);
-        setPhoto(response.data);
+        const photoData = response.data;
 
-        if (response.data.image && response.data.image.url.length > 0) {
-          const firstImageUrl = response.data.image.url[0];
+        // Ensure the image data structure is valid
+        if (photoData.image && Array.isArray(photoData.image.url)) {
+          setPhoto(photoData);
+
+          // Set the first available image as the selected image
+          const firstImageUrl = photoData.image.url[0];
           setSelectedImage(
             firstImageUrl
               ? `/images/${firstImageUrl}`
-              : `data:image/jpeg;base64,${response.data.image.base64[0]}`
+              : photoData.image.base64[0] || "" // Fallback to base64 if no URL is present
           );
         }
       } catch (error) {
@@ -47,9 +51,7 @@ function PhotoDetail() {
   }, [id]);
 
   const handleThumbnailClick = (url, base64) => {
-    setSelectedImage(
-      url ? `/images/${url}` : `data:image/jpeg;base64,${base64}`
-    );
+    setSelectedImage(url ? `/images/${url}` : `${base64}`);
   };
 
   const handleShareClick = () => {
@@ -106,70 +108,74 @@ function PhotoDetail() {
         </Col>
       </Row>
       <Row>
-        <Container></Container>
         <Col md={8}>
           {photo.image &&
+          Array.isArray(photo.image.url) &&
           (photo.image.url.length > 0 || photo.image.base64.length > 0) ? (
             <>
-              <Card style={{ width: "2rem" }}>
+              <Card>
                 <Card.Img
                   variant="top"
                   style={{
-                    width: "30rem",
-                    height: "20rem",
+                    width: "100%",
+                    height: "auto",
                   }}
                   src={selectedImage}
                 />
               </Card>
               <hr />
               <div className="d-flex flex-wrap" style={{ marginTop: "1rem" }}>
-                {photo.image.url.map((url, index) => (
-                  <Col
-                    key={index}
-                    onClick={() =>
-                      handleThumbnailClick(url, photo.image.base64[index])
-                    }
-                  >
-                    <Card.Img
-                      variant="top"
-                      src={`/images/${url}`}
-                      style={{
-                        width: "10rem",
-                        objectFit: "cover",
-                        border: "1px solid transparent",
-                      }}
-                      onMouseOver={(e) =>
-                        (e.currentTarget.style.border = "2px solid red")
+                {Array.isArray(photo.image.url) &&
+                  photo.image.url.map((url, index) => (
+                    <Col
+                      key={index}
+                      onClick={() =>
+                        handleThumbnailClick(url, photo.image.base64[index])
                       }
-                      onMouseOut={(e) =>
-                        (e.currentTarget.style.border = "1px solid transparent")
-                      }
-                    />
-                  </Col>
-                ))}
+                    >
+                      <Card.Img
+                        variant="top"
+                        src={`/images/${url}`}
+                        style={{
+                          width: "10rem",
+                          objectFit: "cover",
+                          border: "1px solid transparent",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.border = "2px solid red")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.border =
+                            "1px solid transparent")
+                        }
+                      />
+                    </Col>
+                  ))}
                 {/* Render Base64 thumbnails if no URLs are present */}
-                {photo.image.base64.map((base64, index) => (
-                  <Col
-                    key={index}
-                    onClick={() => handleThumbnailClick(null, base64)}
-                  >
-                    <Card.Img
-                      variant="top"
-                      src={`data:image/jpeg;base64,${base64}`}
-                      style={{
-                        width: "10rem",
-                        objectFit: "cover",
-                        border: "1px solid transparent",
-                      }}
-                      onMouseOver={(e) =>
-                        (e.currentTarget.style.border = "2px solid red")
-                      }
-                      onMouseOut={(e) =>
-                        (e.currentTarget.style.border = "1px solid transparent")
-                      }
-                    />
-                  </Col>
-                ))}
+                {Array.isArray(photo.image.base64) &&
+                  photo.image.base64.map((base64, index) => (
+                    <Col
+                      key={index}
+                      onClick={() => handleThumbnailClick(null, base64)}
+                    >
+                      <Card.Img
+                        variant="top"
+                        src={`${base64}`}
+                        style={{
+                          width: "10rem",
+                          objectFit: "cover",
+                          border: "1px solid transparent",
+                        }}
+                        onMouseOver={(e) =>
+                          (e.currentTarget.style.border = "2px solid red")
+                        }
+                        onMouseOut={(e) =>
+                          (e.currentTarget.style.border =
+                            "1px solid transparent")
+                        }
+                      />
+                    </Col>
+                  ))}
               </div>
               <hr />
             </>
