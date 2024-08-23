@@ -70,14 +70,14 @@
       "name": "cuong",
       "account": {
         "email": "cuongnhhe186494@fpt.edu.vn",
-        "password": "n5Ubc0",
+        "password": "123",
         "activeCode": "",
         "isActive": true
       },
       "address": {
-        "street": "",
-        "city": "",
-        "zipcode": ""
+        "street": "123",
+        "city": "123",
+        "zipcode": 123
       }
     }
   ],
@@ -95,8 +95,8 @@
       "userId": 2
     },
     {
-      "description": "tét",
-      "userId": 3,
+      "description": "234",
+      "userId": 5,
       "id": 3
     }
   ],
@@ -118,7 +118,11 @@
           "p1_2.jpg",
           "p1_3.jpg"
         ],
-        "thumbnailUrl": "p11.jpg"
+        "base64": []
+      },
+      "thumbnail": {
+        "url": "p11.jpg",
+        "base64": ""
       }
     },
     {
@@ -138,7 +142,11 @@
           "p2_2.jpg",
           "p2_3.jpg"
         ],
-        "thumbnailUrl": "p21.jpg"
+        "base64": []
+      },
+      "thumbnail": {
+        "url": "p21.jpg",
+        "base64": ""
       }
     },
     {
@@ -156,7 +164,11 @@
           "p3_2.jpg",
           "p3_3.jpg"
         ],
-        "thumbnailUrl": "p31.jpg"
+        "base64": []
+      },
+      "thumbnail": {
+        "url": "p31.jpg",
+        "base64": ""
       }
     },
     {
@@ -175,7 +187,11 @@
           "p4_2.jpg",
           "p4_3.jpg"
         ],
-        "thumbnailUrl": "p41.jpg"
+        "base64": []
+      },
+      "thumbnail": {
+        "url": "p41.jpg",
+        "base64": ""
       }
     }
   ],

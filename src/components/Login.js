@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useUser } from "../UserContext";
 import Footer from "./Footer";
 import NavbarComponent from "./Navbar";
 
@@ -10,14 +9,13 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [inactiveUser, setInactiveUser] = useState(null); // State to handle inactive user
+  const [inactiveUser, setInactiveUser] = useState(null);
   const navigate = useNavigate();
-  const { setUser } = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setInactiveUser(null); // Reset inactive user
+    setInactiveUser(null);
 
     try {
       const response = await axios.get("http://localhost:9999/users");
@@ -31,10 +29,10 @@ const Login = () => {
 
       if (user) {
         if (user.account.isActive) {
-          setUser(user);
+          localStorage.setItem("user", JSON.stringify(user)); // Save user to local storage
           navigate("/");
         } else {
-          setInactiveUser(user); // Set the inactive user to render the verification link
+          setInactiveUser(user);
         }
       } else {
         setError("Invalid email or password");

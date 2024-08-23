@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Form, Button, Container, Alert, Row, Col } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useUser } from "../UserContext";
-import NavbarComponent from "./Navbar";
 import axios from "axios";
+import NavbarComponent from "./Navbar";
 import Footer from "./Footer";
 
 const ChangePassword = () => {
@@ -13,40 +12,46 @@ const ChangePassword = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
-  const { user, setUser } = useUser();
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setSuccess("");
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  if (!user) {
-    setError("User not found. Please log in again.");
-    return;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
-  if (user.account.password !== oldPassword) {
-    setError("Old password is incorrect");
-    return;
-  }
+    if (!user) {
+      setError("User not found. Please log in again.");
+      return;
+    }
 
-  if (newPassword !== confirmPassword) {
-    setError("New password and confirm password do not match");
-    return;
-  }
+    if (user.account.password !== oldPassword) {
+      setError("Old password is incorrect");
+      return;
+    }
 
-  try {
-    const updatedUser = { ...user, account: { ...user.account, password: newPassword } };
+    if (newPassword !== confirmPassword) {
+      setError("New password and confirm password do not match");
+      return;
+    }
 
-    await axios.put(`http://localhost:9999/users/${user.id}`, updatedUser);
+    try {
+      const updatedUser = {
+        ...user,
+        account: { ...user.account, password: newPassword },
+      };
 
-    setUser(updatedUser);
-    setSuccess("Password changed successfully");
-  } catch (error) {
-    console.error("Error changing password:", error);
-    setError("An error occurred. Please try again.");
-  }
-};
+      await axios.put(`http://localhost:9999/users/${user.id}`, updatedUser);
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      setSuccess("Password changed successfully");
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setError("An error occurred. Please try again.");
+    }
+  };
+
   return (
     <Container fluid>
       <Row>
@@ -54,7 +59,6 @@ const ChangePassword = () => {
       </Row>
       <Row>
         <Col></Col>
-
         <Col>
           <h2 className="text-center mt-3">Change Password</h2>
           {error && <Alert variant="danger">{error}</Alert>}
@@ -102,7 +106,7 @@ const ChangePassword = () => {
         <Col></Col>
       </Row>
       <Row>
-        <Footer/>
+        <Footer />
       </Row>
     </Container>
   );
