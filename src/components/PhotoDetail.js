@@ -12,8 +12,8 @@ import {
 import { Link, useParams, useNavigate } from "react-router-dom";
 import emailjs from "emailjs-com";
 import Comments from "./Comments";
-import Navbar from "./Navbar"; // Assuming you have a Navbar component
-import Footer from "./Footer"; // Assuming you have a Footer component
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 function PhotoDetail() {
   const { id } = useParams();
@@ -27,17 +27,16 @@ function PhotoDetail() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadImages, setUploadImages] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [albumCreator, setAlbumCreator] = useState(""); // To store the album creator
-  const [ownerName, setOwnerName] = useState(""); // To store the owner's name
+  const [albumCreator, setAlbumCreator] = useState("");
+  const [showOriginalModal, setShowOriginalModal] = useState(false); // State for original image modal
 
-  // Retrieve user from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const photoResponse = await axios.get(
-          `http://localhost:9999/photos/${id}`
+          "http://localhost:9999/photos/" + id
         );
         const photoData = photoResponse.data;
 
@@ -56,13 +55,6 @@ function PhotoDetail() {
           );
           const albumData = albumResponse.data;
           setAlbumCreator(albumData.userId);
-
-          // Fetch user info to get the owner's name
-          const userResponse = await axios.get(
-            `http://localhost:9999/users/${albumData.userId}`
-          );
-          const userData = userResponse.data;
-          setOwnerName(userData.name);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -188,7 +180,7 @@ function PhotoDetail() {
                 >
                   Upload Image
                 </Button>
-                {albumCreator === user.userId && ( // Show delete button if the album creator matches the current user
+                {albumCreator === user.userId && (
                   <Button
                     variant="danger"
                     onClick={() => setShowDeleteConfirm(true)}
@@ -205,18 +197,27 @@ function PhotoDetail() {
         <Row>
           <Col md={8}>
             {photo.image &&
-            Array.isArray(photo.image.url) &&
             (photo.image.url.length > 0 || photo.image.base64.length > 0) ? (
               <>
                 <Card>
                   <Card.Img
                     variant="top"
-                    style={{
-                      width: "100%",
-                      height: "auto",
-                    }}
                     src={selectedImage}
+                    style={{
+                      width: "500px",
+                      height: "500px",
+                      objectFit: "contain", // Ensure the image fits within the frame
+                      display: "block",
+                      margin: "0 auto", // Center the image horizontally
+                    }}
                   />
+                  <Button
+                    variant="info"
+                    onClick={() => setShowOriginalModal(true)}
+                    style={{ marginTop: "10px" }}
+                  >
+                    View original size
+                  </Button>
                 </Card>
                 <hr />
                 <div className="d-flex flex-wrap" style={{ marginTop: "1rem" }}>
@@ -282,91 +283,106 @@ function PhotoDetail() {
               <h4>ID: {photo.id}</h4>
               <h5>Title: {photo.title}</h5>
               <h6>Tags: {photo.tags && photo.tags.join(", ")}</h6>
-              <h6>Owner: {ownerName}</h6> {/* Display the owner's name */}
             </Row>
           </Col>
         </Row>
+
         <Row>
-          <Col>
-            <Comments photoId={id} />
-          </Col>
+          <Comments photoId={id} />
         </Row>
-      </Container>
 
-      {/* Share via Email Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Share Photo</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleSendEmail}>
-            <Form.Group controlId="formBasicEmail">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter recipient's email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              {emailError && (
-                <Form.Text className="text-danger">{emailError}</Form.Text>
-              )}
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Share Photo via Email</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={handleSendEmail}>
+              <Form.Group controlId="formEmail">
+                <Form.Label>Email address</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter recipient's email"
+                />
+                {emailError && <p className="text-danger">{emailError}</p>}
+              </Form.Group>
+              <Button variant="primary" type="submit">
+                Send Email
+              </Button>
               {successMessage && (
-                <Form.Text className="text-success">{successMessage}</Form.Text>
+                <p className="text-success">{successMessage}</p>
               )}
-            </Form.Group>
-            <Button variant="primary" type="submit">
-              Send
+            </Form>
+          </Modal.Body>
+        </Modal>
+
+        <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Upload New Images</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group>
+                <Form.File
+                  id="file-upload"
+                  label="Upload images"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => setUploadImages([...e.target.files])}
+                />
+              </Form.Group>
+              <Button variant="primary" onClick={handleUploadImages}>
+                Upload Images
+              </Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
+
+        <Modal
+          show={showDeleteConfirm}
+          onHide={() => setShowDeleteConfirm(false)}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Delete</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p>
+              Are you sure you want to delete this photo? This action cannot be
+              undone.
+            </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => setShowDeleteConfirm(false)}
+            >
+              Cancel
             </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
+            <Button variant="danger" onClick={handleDeletePhoto}>
+              Delete
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
-      {/* Upload Image Modal */}
-      <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Upload Images</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.File
-              id="imageUpload"
-              label="Choose Images"
-              multiple
-              accept="image/*"
-              onChange={(e) => setUploadImages(e.target.files)}
-            />
-          </Form.Group>
-          <Button variant="primary" onClick={handleUploadImages}>
-            Upload
-          </Button>
-        </Modal.Body>
-      </Modal>
-
-      {/* Delete Confirmation Modal */}
-      <Modal
-        show={showDeleteConfirm}
-        onHide={() => setShowDeleteConfirm(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Confirm Deletion</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>Are you sure you want to delete this photo?</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowDeleteConfirm(false)}
-          >
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={handleDeletePhoto}>
-            Delete
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+        <Modal
+          show={showOriginalModal}
+          onHide={() => setShowOriginalModal(false)}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Original Photo</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {photo.image && (
+              <img
+                src={selectedImage}
+                alt="Original"
+                style={{ width: "100%", height: "auto" }}
+              />
+            )}
+          </Modal.Body>
+        </Modal>
+      </Container>
       <Footer />
     </>
   );
