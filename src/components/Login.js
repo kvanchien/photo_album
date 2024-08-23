@@ -19,13 +19,7 @@ const Login = () => {
 
     try {
       const response = await axios.get("http://localhost:9999/users");
-      const users = response.data;
-      const user = users.find(
-        (u) =>
-          u.account &&
-          u.account.email === email &&
-          u.account.password === password
-      );
+            const user = response.data.find(u => u.account.email === email && u.account.password === password);
 
       if (user) {
         if (user.account.isActive) {

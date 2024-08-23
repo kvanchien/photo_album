@@ -239,11 +239,8 @@
       "rate": 4
     },
     {
-      "id": 7,
-      "photoId": 2,
-      "userId": 2,
-      "text": "Trung bình",
-      "rate": 3
+      "text": "Trung bình1",
+      "id": 7
     },
     {
       "id": 8,
@@ -255,16 +252,25 @@
     {
       "photoId": 3,
       "userId": 2,
-      "text": "ac",
-      "rate": 5,
-      "id": 9
-    },
-    {
-      "photoId": 3,
-      "userId": 2,
       "text": "k",
       "rate": 5,
       "id": 10
+    },
+    {
+      "photoId": 2,
+      "userId": 2,
+      "text": "a",
+      "rate": 5,
+      "parentId": 7,
+      "id": 11
+    },
+    {
+      "photoId": 1,
+      "userId": 2,
+      "text": "ok",
+      "rate": null,
+      "parentId": 1,
+      "id": 12
     }
   ]
 }
