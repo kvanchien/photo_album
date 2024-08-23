@@ -81,15 +81,7 @@ function PhotoDetail() {
           <Link to={"/"}>
             <Button variant="success">Go to Home</Button>
           </Link>
-<<<<<<< HEAD
           
-=======
-          {user && ( // Conditionally render the share button
-            <Button variant="info" onClick={handleShareClick} className="ml-2">
-              Share via Email
-            </Button>
-          )}
->>>>>>> 05a93e453da4e6ff5ae7629b5742c97e28073598
         </Col>
       </Row>
       <Row>
@@ -143,7 +135,6 @@ function PhotoDetail() {
             <h6>ID: {photo.id}</h6>
             <h6>Title: {photo.title}</h6>
             <h8>Tags: {photo.tags && photo.tags.join(", ")}</h8>
-<<<<<<< HEAD
             
           </Row>
           <Row>
@@ -153,9 +144,6 @@ function PhotoDetail() {
             </Button>
           )}
           </Row>
-=======
-          </div>
->>>>>>> 05a93e453da4e6ff5ae7629b5742c97e28073598
         </Col>
       </Row>
 

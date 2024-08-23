@@ -42,6 +42,7 @@ export default function Manage() {
         body: JSON.stringify({
           description: newAlbumName,
           userId: user.id,
+          albumId: albums.length+1
         }),
       }).then(() => {
         setNewAlbumName("");
@@ -242,7 +243,7 @@ export default function Manage() {
                 </Form>
               </Row>
 
-              <Row className="mt-5">
+              <Row>
                 <Form>
                   <Form.Group>
                     <Form.Label><h4>Create New Album </h4></Form.Label>
