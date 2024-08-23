@@ -21,6 +21,8 @@ function PhotoDetail() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadImages, setUploadImages] = useState([]);
 
   // Retrieve user from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
@@ -86,6 +88,39 @@ function PhotoDetail() {
     }
   };
 
+  const handleUploadImages = async () => {
+    try {
+      const imageUrls = await Promise.all(
+        uploadImages.map(async (image) => {
+          return await toBase64(image);
+        })
+      );
+
+      const updatedPhoto = {
+        ...photo,
+        image: {
+          ...photo.image,
+          base64: [...(photo.image.base64 || []), ...imageUrls],
+        },
+      };
+
+      await axios.put(`http://localhost:9999/photos/${id}`, updatedPhoto);
+      setPhoto(updatedPhoto);
+      setShowUploadModal(false);
+      setUploadImages([]);
+    } catch (error) {
+      console.error("Error uploading images:", error);
+    }
+  };
+
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
   return (
     <Container>
       <Row>
@@ -103,6 +138,15 @@ function PhotoDetail() {
           {user && (
             <Button variant="info" onClick={handleShareClick} className="ml-2">
               Share via Email
+            </Button>
+          )}
+          {user && (
+            <Button
+              variant="primary"
+              onClick={() => setShowUploadModal(true)}
+              className="ml-2"
+            >
+              Upload Image
             </Button>
           )}
         </Col>
@@ -217,6 +261,32 @@ function PhotoDetail() {
             </Button>
           </Form>
         </Modal.Body>
+      </Modal>
+
+      <Modal show={showUploadModal} onHide={() => setShowUploadModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Upload Images</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formFileMultiple">
+              <Form.Label>Select Images</Form.Label>
+              <Form.Control
+                type="file"
+                multiple
+                onChange={(e) => setUploadImages([...e.target.files])}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowUploadModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleUploadImages}>
+            Upload Images
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       {successMessage && (
